@@ -1,117 +1,162 @@
 ﻿// Additional_3 (2 еместр).cpp : Этот файл содержит функцию "main". Здесь начинается и заканчивается выполнение программы.
-//
+/*Реализуйте двусвязный циклический список, предусмотрите в нем функции добавления элемента, 
+вставки, удаления, обхода списка в обоих направлениях.*/
 
-#include <stdlib.h>
 #include <iostream>
+
 using namespace std;
 
-struct Node                             
+struct List
 {
-    int x;                            
-    Node* Next, * Prev;                 
+    List* Next;
+    List* Prev;
+    int x;
 };
 
-class List                              
+void ADD(List* head, int x)
 {
-    Node* Head, * Tail;                 
-public:
-    List() :Head(NULL), Tail(NULL) {};   
-    ~List();                           
-    void Show();                       
-    void Add(int x);  
-    Node* Find(int n);
-};
-
-List::~List()    //Деструктор
-{
-    while (Head)                     
+    List* p = new List;
+    p->x = x;
+    if (head->Next == nullptr)
     {
-        Tail = Head->Next; 
-        delete Head;  
-        Head = Tail; 
+        head->Next = p;
+        p->Next = p;
+        p->Prev = p;
     }
+    else if (head->Next == head->Next->Next)
+    {
+        p->Next = head->Next;
+        p->Prev = head->Next;
+        head->Next->Next = p;
+        head->Next->Prev = p;
+    }
+    else
+    {
+        p->Next = head->Next;
+        p->Prev = head->Next->Prev;
+        head->Next->Prev->Next = p;
+        head->Next->Prev = p;
+    }
+
 }
-
-void List::Add(int x)
+void Print(List* head)
 {
-    Node* q = new Node;               
-    q->Next = NULL;        
-    q->x = x;    
-
-    if (Head != NULL)//Если список не пуст
+    std::cout << std::endl << std::endl;
+    List* p = new List;
+    p = head->Next;
+    do // Обход вперёд
     {
-        q->Prev = Tail;               
-        Tail->Next = q;               
-        Tail = q;                     
-    }
-    else //Если список пустой
+        std::cout << p->x << " ";
+        p = p->Next;
+    } while (p != head->Next);
+    std::cout << std::endl;
+    p = head->Next;
+    do // Обход назад
     {
-        q->Prev = NULL;     
-        Head = Tail = q;  
-    }
+        std::cout << p->x << " ";
+        p = p->Prev;
+    } while (p != head->Next);
 }
-Node* List::Find(int n)
+void Incert(List* head, int x, int k)
 {
-    Node* q = Tail; 
-    while (q != NULL)  
+    List* p = new List;
+    p->x = x;
+    if (head->Next == nullptr)
     {
-        if (q->x == n)
+        if (k == 0)
         {
-            return q;
+            head->Next = p;
+            p->Next = p;
+            p->Prev = p;
         }
-        q = q->Prev;            
     }
-    return NULL;
+    else if (head->Next == head->Next->Next)
+    {
+        if (k == 0 || k == 1)
+        {
+            if (k == 0)
+            {
+                head->Next = p;
+                p->Next = p;
+                p->Prev = p;
+            }
+            else
+            {
+                p->Next = head->Next;
+                p->Prev = head->Next;
+                head->Next->Next = p;
+                head->Next->Prev = p;
+            }
+        }
+
+    }
+    else
+    {
+        int u = 0;
+        List* r = new List;
+        r = head->Next;
+        do
+        {
+            if (u == k)
+            {
+                p->Next = r;
+                p->Prev = r->Prev;
+                r->Prev->Next = p;
+                r->Prev = p;
+            }
+            u++;
+            r = r->Next;
+        } while (r != head->Next);
+    }
 }
-void List::Show()
+void Delete(List* head, int k)
 {
-    //ВЫВОДИМ СПИСОК С КОНЦА
-    Node* q = Tail;                   //Временный указатель на адрес последнего элемента
-
-    while (q != NULL)               //Пока не встретится пустое значение
+    if (head->Next == nullptr)
     {
-        cout << q->x << " ";        //Выводить значение на экран
-        q = q->Prev;             //Указываем, что нужен адрес предыдущего элемента
-    }
-    cout << "\n";
 
-    //ВЫВОДИМ СПИСОК С НАЧАЛА
-    q = Head;                       //Временно указываем на адрес первого элемента
-    while (q != NULL)              //Пока не встретим пустое значение
-    {
-        cout << q->x << " ";        //Выводим каждое считанное значение на экран
-        q = q->Next;             //Смена адреса на адрес следующего элемента
     }
-    cout << "\n";
+    else if (head->Next == head->Next->Next)
+    {
+        if (k == 0)
+        {
+            delete[] head->Next;
+            head->Next = nullptr;
+        }
+    }
+    else
+    {
+        int u = 0;
+        List* r = new List;
+        r = head->Next;
+        do
+        {
+            if (u == k)
+            {
+                r->Prev->Next = r->Next;
+                r->Next->Prev = r->Prev;
+                delete[] r;
+                break;
+            }
+            u++;
+            r = r->Next;
+        } while (r != head->Next);
+    }
 }
-
 int main()
 {
-    List lst;
-    lst.Add(100);
-    lst.Add(200);
-    lst.Add(900);
-    lst.Add(888);
+    setlocale(LC_ALL, "Rus");
+    List* head = new List;
+    head->Prev = nullptr;
+    head->Next = nullptr;
 
-    lst.Show();
-    if (lst.Find(200) != NULL)
-    {
-        cout << "!!!";
-    }
-    if (lst.Find(300) != NULL)
-    {
-        cout << "T!!";
-    }
-    system("PAUSE");
-    return 0;
+    ADD(head, 10);
+    ADD(head, 110);
+    ADD(head, 101);
+    ADD(head, 1011);
+    Incert(head, 22, 2);
+    Print(head);
+    Incert(head, 222, 2);
+    Print(head);
+    Delete(head, 2);
+    Print(head);
 }
-// Запуск программы: CTRL+F5 или меню "Отладка" > "Запуск без отладки"
-// Отладка программы: F5 или меню "Отладка" > "Запустить отладку"
-
-// Советы по началу работы 
-//   1. В окне обозревателя решений можно добавлять файлы и управлять ими.
-//   2. В окне Team Explorer можно подключиться к системе управления версиями.
-//   3. В окне "Выходные данные" можно просматривать выходные данные сборки и другие сообщения.
-//   4. В окне "Список ошибок" можно просматривать ошибки.
-//   5. Последовательно выберите пункты меню "Проект" > "Добавить новый элемент", чтобы создать файлы кода, или "Проект" > "Добавить существующий элемент", чтобы добавить в проект существующие файлы кода.
-//   6. Чтобы снова открыть этот проект позже, выберите пункты меню "Файл" > "Открыть" > "Проект" и выберите SLN-файл.
